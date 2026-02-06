@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini App de Nomes</title>
+<style>
+:root {
+    --bg: #f4f4f4; --card: #ffffff; --text:#2c3e50; --primary:#27ae60; --danger:#c0392b; --item:#ecf0f1;
+}
+body.dark { --bg:#121212; --card:#1e1e1e; --text:#f1f1f1; --primary:#2ecc71; --danger:#e74c3c; --item:#2a2a2a; }
+body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); transition:all 0.3s; }
+header { background:var(--card); padding:20px; text-align:center; position:relative; }
+.toggle-theme { position:absolute; right:20px; top:20px; cursor:pointer; font-size:22px; }
+main { padding:20px; padding-bottom:140px; max-width:500px; margin:auto; }
+.card { background:var(--card); padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); transition:background 0.3s; }
+input[type="text"] { width:100%; padding:10px; font-size:16px; margin-bottom:10px; border-radius:5px; border:none; outline:none; }
+button { width:100%; background:var(--primary); color:white; border:none; padding:10px; border-radius:5px; font-size:16px; cursor:pointer; margin-bottom:10px; }
+.limpar { background:var(--danger); }
+ul { list-style:none; padding:0; margin-top:15px; }
+li { background:var(--item); padding:10px; margin-bottom:8px; border-radius:5px; font-weight:bold; opacity:0; transform:translateY(15px); transition:all 0.4s ease; }
+li.mostrar { opacity:1; transform:translateY(0); }
+.tema-card { margin-top:20px; }
+.tema-card label { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-weight:bold; }
+footer { background:var(--card); text-align:center; padding:15px; position:fixed; bottom:0; width:100%; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Mini App de Nomes</h1>
+    <div class="toggle-theme" id="toggleTheme">🌙</div>
+</header>
+
+<main>
+<div class="card">
+    <input type="text" id="inputNome" placeholder="Digite um nome">
+    <button id="btnAdicionar">Adicionar Nome</button>
+    <button class="limpar" id="btnLimpar">Limpar Tudo</button>
+    <ul id="listaNomes"></ul>
+
+    <div class="tema-card">
+        <h3>🎨 Cores do Tema</h3>
+        <label>Cor principal<input type="color" id="corPrimary"></label>
+        <label>Fundo<input type="color" id="corBg"></label>
+        <label>Card<input type="color" id="corCard"></label>
+    </div>
+</div>
+</main>
+
+<footer>Mini App - 2026</footer>
+
+<script>
+const input=document.getElementById("inputNome");
+const btnAdicionar=document.getElementById("btnAdicionar");
+const btnLimpar=document.getElementById("btnLimpar");
+const lista=document.getElementById("listaNomes");
+const toggleTheme=document.getElementById("toggleTheme");
+const corPrimary=document.getElementById("corPrimary");
+const corBg=document.getElementById("corBg");
+const corCard=document.getElementById("corCard");
+
+let nomes=JSON.parse(localStorage.getItem("nomes"))||[];
+let tema=JSON.parse(localStorage.getItem("temaCores"))||{primary:"#27ae60",bg:"#f4f4f4",card:"#ffffff"};
+let modo=localStorage.getItem("tema")||"light";
+
+function aplicarTema(){
+    document.documentElement.style.setProperty("--primary",tema.primary);
+    document.documentElement.style.setProperty("--bg",tema.bg);
+    document.documentElement.style.setProperty("--card",tema.card);
+    corPrimary.value=tema.primary;
+    corBg.value=tema.bg;
+    corCard.value=tema.card;
+    localStorage.setItem("temaCores",JSON.stringify(tema));
+    if(modo==="dark") document.body.classList.add("dark");
+    else document.body.classList.remove("dark");
+    toggleTheme.textContent=modo==="dark"?"☀️":"🌙";
+}
+
+function salvarNomes(){ localStorage.setItem("nomes",JSON.stringify(nomes)); }
+
+function renderizar(){
+    lista.innerHTML="";
+    nomes.forEach(nome=>{
+        const li=document.createElement("li");
+        li.textContent=nome;
+        lista.appendChild(li);
+        requestAnimationFrame(()=>{ li.classList.add("mostrar"); });
+    });
+}
+
+btnAdicionar.addEventListener("click",()=>{
+    const nome=input.value.trim();
+    if(!nome)return;
+    nomes.push(nome);
+    salvarNomes();
+    renderizar();
+    input.value="";
+    input.focus();
+});
+
+btnLimpar.addEventListener("click",()=>{
+    if(confirm("Deseja apagar todos os nomes?")){
+        nomes=[];
+        salvarNomes();
+        renderizar();
+    }
+});
+
+corPrimary.addEventListener("input",e=>{ tema.primary=e.target.value; aplicarTema(); });
+corBg.addEventListener("input",e=>{ tema.bg=e.target.value; aplicarTema(); });
+corCard.addEventListener("input",e=>{ tema.card=e.target.value; aplicarTema(); });
+
+toggleTheme.addEventListener("click",()=>{ modo=modo==="light"?"dark":"light"; aplicarTema(); });
+
+aplicarTema();
+renderizar();
+</script>
+
+</body>
+</html>
