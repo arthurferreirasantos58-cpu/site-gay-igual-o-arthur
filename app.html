@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Jogo de Plataforma</title>
 <style>
 :root { --bg:#f4f4f4; --player:#27ae60; --platform:#34495e; --text:#2c3e50; }
@@ -17,10 +17,26 @@ body {
     flex-direction:column;
     align-items:center;
     transition:all 0.3s;
+    min-height: 100vh;
 }
 
-header { width:100%; text-align:center; padding:15px; background:var(--platform); color:white; position:relative; }
-.toggle-theme { position:absolute; right:15px; top:15px; cursor:pointer; font-size:22px; }
+header {
+    width:100%;
+    text-align:center;
+    padding:15px;
+    background:var(--platform);
+    color:white;
+    position:relative;
+}
+
+.toggle-theme {
+    position:absolute;
+    right:15px;
+    top:15px;
+    cursor:pointer;
+    font-size:22px;
+    user-select:none;
+}
 
 canvas {
     background:var(--bg);
@@ -29,17 +45,21 @@ canvas {
     border:2px solid var(--text);
     max-width:95vw;
     height:auto;
+    box-sizing: border-box;
 }
 
 button {
     padding:10px 20px;
-    margin-top:10px;
+    margin:10px auto 30px;
     cursor:pointer;
     border:none;
     border-radius:5px;
     background:#ff6600;
     color:white;
     font-weight:bold;
+    display: block;
+    max-width: 90vw;
+    font-size: 16px;
 }
 
 /* Responsividade */
@@ -53,10 +73,10 @@ button {
 
 <header>
     <h1>Jogo de Plataforma</h1>
-    <div class="toggle-theme" id="toggleTheme">🌙</div>
+    <div class="toggle-theme" id="toggleTheme" title="Alternar Tema">🌙</div>
 </header>
 
-<canvas id="gameCanvas" width="600" height="400"></canvas>
+<canvas id="gameCanvas" width="600" height="400" aria-label="Área do jogo de plataforma"></canvas>
 <button onclick="voltar()">Voltar à Landing Page</button>
 
 <script>
@@ -145,8 +165,16 @@ function voltar(){ window.location.href="index.html"; }
 // Tema
 const toggleTheme=document.getElementById("toggleTheme");
 let modo=localStorage.getItem("tema")||"light";
-function aplicarTema(){ if(modo==="dark") document.body.classList.add("dark"); else document.body.classList.remove("dark"); toggleTheme.textContent=modo==="dark"?"☀️":"🌙"; localStorage.setItem("tema",modo);}
-toggleTheme.addEventListener("click",()=>{ modo=modo==="light"?"dark":"light"; aplicarTema(); });
+function aplicarTema(){
+    if(modo==="dark") document.body.classList.add("dark");
+    else document.body.classList.remove("dark");
+    toggleTheme.textContent = modo==="dark"?"☀️":"🌙";
+    localStorage.setItem("tema",modo);
+}
+toggleTheme.addEventListener("click", ()=>{
+    modo=modo==="light"?"dark":"light";
+    aplicarTema();
+});
 aplicarTema();
 </script>
 
