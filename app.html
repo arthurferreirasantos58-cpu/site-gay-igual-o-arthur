@@ -7,11 +7,46 @@
 <style>
 :root { --bg:#f4f4f4; --player:#27ae60; --platform:#34495e; --text:#2c3e50; }
 body.dark { --bg:#121212; --player:#2ecc71; --platform:#1e1e1e; --text:#f1f1f1; }
-body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column; align-items:center; transition:all 0.3s; }
+
+body {
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    transition:all 0.3s;
+}
+
 header { width:100%; text-align:center; padding:15px; background:var(--platform); color:white; position:relative; }
-.toggle-theme { position:absolute; right:20px; top:15px; cursor:pointer; font-size:22px; }
-canvas { background:var(--bg); display:block; margin:20px auto; border:2px solid var(--text); }
-button { padding:10px 20px; margin-top:10px; cursor:pointer; border:none; border-radius:5px; background:#ff6600; color:white; font-weight:bold; }
+.toggle-theme { position:absolute; right:15px; top:15px; cursor:pointer; font-size:22px; }
+
+canvas {
+    background:var(--bg);
+    display:block;
+    margin:20px auto;
+    border:2px solid var(--text);
+    max-width:95vw;
+    height:auto;
+}
+
+button {
+    padding:10px 20px;
+    margin-top:10px;
+    cursor:pointer;
+    border:none;
+    border-radius:5px;
+    background:#ff6600;
+    color:white;
+    font-weight:bold;
+}
+
+/* Responsividade */
+@media(max-width:600px){
+    .toggle-theme { font-size:18px; right:10px; top:10px; }
+    button { width:90%; font-size:16px; padding:10px; }
+}
 </style>
 </head>
 <body>
@@ -27,6 +62,15 @@ button { padding:10px 20px; margin-top:10px; cursor:pointer; border:none; border
 <script>
 const canvas=document.getElementById("gameCanvas");
 const ctx=canvas.getContext("2d");
+
+function ajustarCanvas(){
+    const vw=Math.min(window.innerWidth*0.95,600);
+    canvas.width=vw;
+    canvas.height=vw*2/3; // proporção 3:2
+}
+ajustarCanvas();
+window.addEventListener("resize",ajustarCanvas);
+
 let w=canvas.width, h=canvas.height;
 
 // jogador
@@ -35,22 +79,16 @@ let player={x:50, y:h-60, w:30, h:30, dy:0, grounded:false};
 // plataformas
 let platforms=[
     {x:0, y:h-20, w:w, h:20},
-    {x:100, y:h-100, w:100, h:10},
-    {x:300, y:h-150, w:150, h:10},
-    {x:500, y:h-200, w:80, h:10}
+    {x:w*0.15, y:h-100, w:w*0.3, h:10},
+    {x:w*0.5, y:h-150, w:w*0.25, h:10},
+    {x:w*0.8, y:h-200, w:w*0.15, h:10}
 ];
 
-// física
-const gravity=0.8;
-const speed=4;
-const jump=15;
+const gravity=0.8, speed=4, jump=15;
 let keys={};
-
-// pontuação
 let score=0;
 let highScore=localStorage.getItem("highScore")||0;
 
-// loop principal
 function gameLoop(){
     ctx.clearRect(0,0,w,h);
 
@@ -62,7 +100,6 @@ function gameLoop(){
     player.dy+=gravity;
     player.y+=player.dy;
 
-    // colisão com plataformas
     player.grounded=false;
     platforms.forEach(p=>{
         if(player.x< p.x + p.w && player.x + player.w > p.x &&
@@ -73,22 +110,18 @@ function gameLoop(){
         }
     });
 
-    // movimento horizontal
     if(keys["ArrowLeft"]||keys["a"]) player.x-=speed;
     if(keys["ArrowRight"]||keys["d"]) player.x+=speed;
 
-    // limites
     if(player.x<0) player.x=0;
     if(player.x+w>canvas.width) player.x=canvas.width-player.w;
     if(player.y>canvas.height){ player.y=h-60; score=0; }
 
-    // desenhar jogador
     ctx.fillStyle="var(--player)";
     ctx.fillRect(player.x,player.y,player.w,player.h);
 
-    // pontuação
     ctx.fillStyle="var(--text)";
-    ctx.font="18px Arial";
+    ctx.font="16px Arial";
     ctx.fillText("Pontuação: "+score,10,20);
     ctx.fillText("Recorde: "+highScore,10,40);
 
@@ -97,16 +130,19 @@ function gameLoop(){
 
 document.addEventListener("keydown",e=>{
     keys[e.key]=true;
-    if((e.key=="ArrowUp"||e.key=="w") && player.grounded){ player.dy=-jump; score++; if(score>highScore){ highScore=score; localStorage.setItem("highScore",highScore); } }
+    if((e.key=="ArrowUp"||e.key=="w") && player.grounded){
+        player.dy=-jump;
+        score++;
+        if(score>highScore){ highScore=score; localStorage.setItem("highScore",highScore); }
+    }
 });
 document.addEventListener("keyup",e=>{ keys[e.key]=false; });
 
 gameLoop();
 
-// botão voltar
 function voltar(){ window.location.href="index.html"; }
 
-// tema
+// Tema
 const toggleTheme=document.getElementById("toggleTheme");
 let modo=localStorage.getItem("tema")||"light";
 function aplicarTema(){ if(modo==="dark") document.body.classList.add("dark"); else document.body.classList.remove("dark"); toggleTheme.textContent=modo==="dark"?"☀️":"🌙"; localStorage.setItem("tema",modo);}
