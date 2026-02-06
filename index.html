@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Bem-vindo ao Jogo de Plataforma</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -19,7 +19,9 @@ body, html {
     position:relative;
 }
 
-canvas { position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; }
+canvas {
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:0;
+}
 
 .container {
     position:relative;
@@ -35,6 +37,15 @@ h1 {
     border-right:.15em solid orange;
     white-space:nowrap;
     animation: typing 3s steps(30,end), blink .75s step-end infinite;
+    outline:none;
+    user-select:none;
+    cursor:pointer;
+}
+
+h1:focus {
+    border-color:#ff6600;
+    outline:2px solid #ff6600;
+    outline-offset:3px;
 }
 
 /* Botão oculto */
@@ -50,12 +61,15 @@ h1 {
     cursor:pointer;
     font-weight:bold;
     box-shadow:0 0 10px #ff6600,0 0 20px #ff6600;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
     animation:pulse 1.5s infinite alternate;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#entrar:hover {
+#entrar:hover, #entrar:focus {
     transform:scale(1.05);
     box-shadow:0 0 20px #ff9933,0 0 30px #ff9933;
+    outline:none;
 }
 
 /* Animações */
@@ -75,40 +89,66 @@ h1 {
 <canvas id="fundo"></canvas>
 
 <div class="container">
-    <h1 id="texto">Bem-vindo ao Jogo de Plataforma!</h1>
+    <h1 id="texto" tabindex="0">Bem-vindo ao Jogo de Plataforma!</h1>
     <button id="entrar" onclick="entrar()">Entrar no Jogo</button>
 </div>
 
 <script>
 function entrar(){ window.location.href="game.html"; }
-setTimeout(()=>{ document.getElementById("entrar").style.display="inline-block"; },4000);
+const entrarBtn = document.getElementById("entrar");
+setTimeout(() => { entrarBtn.style.display = "inline-block"; }, 4000);
 
 // partículas leves
-const canvas=document.getElementById("fundo");
-const ctx=canvas.getContext("2d");
-let w=canvas.width=window.innerWidth;
-let h=canvas.height=window.innerHeight;
-let particles=[];
-for(let i=0;i<80;i++){ particles.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*2+1,dx:(Math.random()-0.5)*1,dy:(Math.random()-0.5)*1}); }
+const canvas = document.getElementById("fundo");
+const ctx = canvas.getContext("2d");
+let w = canvas.width = window.innerWidth;
+let h = canvas.height = window.innerHeight;
+let particles = [];
+for(let i = 0; i < 80; i++){
+    particles.push({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        r: Math.random()*2 + 1,
+        dx: (Math.random()-0.5)*1,
+        dy: (Math.random()-0.5)*1
+    });
+}
+
 function animar(){
-    ctx.clearRect(0,0,w,h);
+    ctx.clearRect(0, 0, w, h);
     for(let p of particles){
         ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle="rgba(255,255,255,0.7)";
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
         ctx.fill();
-        p.x+=p.dx; p.y+=p.dy;
-        if(p.x<0||p.x>w)p.dx*=-1;
-        if(p.y<0||p.y>h)p.dy*=-1;
+        p.x += p.dx;
+        p.y += p.dy;
+        if(p.x < 0 || p.x > w) p.dx *= -1;
+        if(p.y < 0 || p.y > h) p.dy *= -1;
     }
     requestAnimationFrame(animar);
 }
 animar();
-window.addEventListener('resize',()=>{ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; });
 
-// botão secreto: clicar no título
-document.getElementById("texto").addEventListener("click",()=>{ document.getElementById("entrar").style.display="inline-block"; });
+window.addEventListener('resize', () => {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    particles.forEach(p => {
+        if(p.x > w) p.x = Math.random()*w;
+        if(p.y > h) p.y = Math.random()*h;
+    });
+});
+
+// botão secreto: clicar ou focar e apertar enter/espaço no título
+const texto = document.getElementById("texto");
+texto.addEventListener("click", () => { entrarBtn.style.display = "inline-block"; });
+texto.addEventListener("keydown", e => {
+    if(e.key === "Enter" || e.key === " ") {
+        entrarBtn.style.display = "inline-block";
+    }
+});
 </script>
 
 </body>
 </html>
+
